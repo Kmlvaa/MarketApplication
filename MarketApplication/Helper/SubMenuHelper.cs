@@ -11,6 +11,7 @@ namespace MarketApplication.Helper
 
             do
             {
+                Console.WriteLine("----------------------------");
                 Console.WriteLine("1. Add Product");
                 Console.WriteLine("2. Delete Product");
                 Console.WriteLine("3. Update Product");
@@ -21,7 +22,7 @@ namespace MarketApplication.Helper
 
                 Console.WriteLine("0. Exit");
                 Console.WriteLine("----------------------------");
-                Console.WriteLine("Please, select an option:");
+                Console.Write("Please, select an option:");
 
                 while (!int.TryParse(Console.ReadLine(), out selectedOption))
                 {
@@ -37,10 +38,21 @@ namespace MarketApplication.Helper
                         MenuService.MenuRemoveProduct();
                         break;
                     case 3:
+                        MenuService.MenuUpdateProduct();
+                        break;
+                    case 4:
                         MenuService.MenuShowProduct();
                         break;
+                    case 5:
+                        MenuService.MenuShowProductsByCategory();
+                        break;
+                    case 6:
+                        MenuService.MenuShowProductsByName();
+                        break;
+                    case 7:
+                        MenuService.MenuShowProductsByPriceRange();
+                        break;
                     case 0:
-                        Console.WriteLine("Bye!");
                         break;
                     default:
                         Console.WriteLine("No such option!");
@@ -52,8 +64,8 @@ namespace MarketApplication.Helper
         {
             int selectedOption;
 
-            do
-            {
+            do{
+                Console.WriteLine("----------------------------");
                 Console.WriteLine("1. Add Sale");
                 Console.WriteLine("2. Delete Sale");
                 Console.WriteLine("3. Update Sale");
@@ -65,7 +77,7 @@ namespace MarketApplication.Helper
 
                 Console.WriteLine("0. Exit");
                 Console.WriteLine("----------------------------");
-                Console.WriteLine("Please, select an option:");
+                Console.Write("Please, select an option:");
 
                 while (!int.TryParse(Console.ReadLine(), out selectedOption))
                 {
@@ -82,7 +94,6 @@ namespace MarketApplication.Helper
                     case 3:
                         break;
                     case 0:
-                        Console.WriteLine("Bye!");
                         break;
                     default:
                         Console.WriteLine("No such option!");

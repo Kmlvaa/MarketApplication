@@ -12,12 +12,13 @@ namespace MarketApplication
 
             do
             {
+                Console.WriteLine("----------------------------");
                 Console.WriteLine("1. For managing product");
                 Console.WriteLine("2. For managing sale");
 
                 Console.WriteLine("0. Exit");
                 Console.WriteLine("----------------------------");
-                Console.WriteLine("Please, select an option:");
+                Console.Write("Please, select an option:");
 
                 while (!int.TryParse(Console.ReadLine(), out selectedOption))
                 {
