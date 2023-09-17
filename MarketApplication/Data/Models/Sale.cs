@@ -1,4 +1,5 @@
 ﻿using MarketApplication.Data.Common;
+using MarketApplication.Data.Models;
 
 namespace MarketApplication.Data.Models
 {
@@ -11,7 +12,7 @@ namespace MarketApplication.Data.Models
             _id++;
         }
         public decimal Amount { get; set; }
-        public DateOnly Date { get; set; }
+        public DateTime Date { get; set; }
         public List<SaleItem> Items { get; set; } = new();
         
     }

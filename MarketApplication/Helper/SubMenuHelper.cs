@@ -87,11 +87,15 @@ namespace MarketApplication.Helper
                 switch (selectedOption)
                 {
                     case 1:
-                     
+                        MenuService.MenuAddSales();
                         break;
                     case 2:
+                        
                         break;
                     case 3:
+                        break;
+                    case 4:
+                        MenuService.MenuShowSales();
                         break;
                     case 0:
                         break;

@@ -70,8 +70,8 @@ namespace MarketApplication.Servers.Concrete
                 Console.Write("Enter product's name: ");
                 string name = Console.ReadLine()!;
 
-                Console.Write("Enter product's category: ");
-                Category category = (Category)Enum.Parse(typeof(Category), Console.ReadLine()!);
+                //Console.Write("Enter product's category: ");
+                //Category category = (Category)Enum.Parse(typeof(Category), Console.ReadLine()!);
 
                 Console.Write("Enter product's count: ");
                 int count = int.Parse(Console.ReadLine()!);
@@ -79,7 +79,7 @@ namespace MarketApplication.Servers.Concrete
                 Console.Write("Enter product's price: ");
                 decimal price = decimal.Parse(Console.ReadLine()!);
 
-                MarketService.UpdateProduct(id, count, price, name, category);
+                MarketService.UpdateProduct(id, count, price, name);
                 Console.WriteLine($"Product with ID:{id} is updated!");
             }
             catch( Exception ex)
@@ -159,7 +159,37 @@ namespace MarketApplication.Servers.Concrete
                 Console.WriteLine(ex.Message);
             }
         }
+        public static void MenuAddSales()
+        {
+            try
+            {
+                Console.Write("Enter sale's id: ");
+                int id = int.Parse(Console.ReadLine()!);
 
+                Console.Write("Enter sale's count: ");
+                int count = int.Parse(Console.ReadLine()!);
 
+                Console.Write("Enter sale's date (dd/MM/yyyy - HH:mm)");
+                var date = DateTime.ParseExact(Console.ReadLine()!, "dd/MM/yyyy - HH:mm", null);
+
+                MarketService.AddSale(id, count, date);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+        }
+        public static void MenuShowSales()
+        {
+
+            var table = new ConsoleTable("ID", "Count", "Amount", "Date");
+
+            foreach (var sale in MarketService.ShowSales())
+            {
+               //table.AddRow(sale.Id, sale.Items.ForEach(x => x.SaleProduct), sale.Amount, sale.Date);
+            }
+
+            table.Write();
+        }
     }
 }

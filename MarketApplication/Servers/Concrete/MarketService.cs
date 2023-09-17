@@ -1,19 +1,12 @@
-﻿using ConsoleTables;
-using MarketApplication.Data.Enum;
+﻿using MarketApplication.Data.Enum;
 using MarketApplication.Data.Models;
-using MarketApplication.Servers.Abstract;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MarketApplication.Servers.Concrete
 {
     public class MarketService //: IMarket
     {
         public static List<Product> Products = new();
+        public static List<SaleItem> SaleItems = new();
         public static List<Sale> Sales = new();
 
         public static List<Product> GetProduct()
@@ -48,7 +41,7 @@ namespace MarketApplication.Servers.Concrete
             Products.Remove(product);
             return product.Count;
         }
-        public static List<Product> UpdateProduct(int id, int count, decimal price, string name, Category category)
+        public static List<Product> UpdateProduct(int id, int count, decimal price, string name)
         {
             var product = Products.FirstOrDefault(x => x.Id == id)?? throw new Exception($"Product with ID{id} could not found!");
             if (string.IsNullOrWhiteSpace(name))
@@ -60,14 +53,13 @@ namespace MarketApplication.Servers.Concrete
             product.Price = price;
             product.Name = name;
             product.Count = count;
-            product.Categories = category;
             return Products;
         }
         public static List<Product> ShowProductsByCategory(int value)
         {
-            var catelogy = Enum.GetName(typeof(Category), value);
-            if (catelogy is null) throw new Exception($"Category is invalid!");
-            var prd = Products.Where(x => x.Categories.ToString().Contains(catelogy)).ToList();
+            var category = Enum.GetName(typeof(Category), value);
+            if (category is null) throw new Exception($"Category is invalid!");
+            var prd = Products.Where(x => x.Categories.ToString().Contains(category)).ToList();
             return prd;
         }
         public static List<Product> ShowProductsByName(string name)
@@ -81,18 +73,41 @@ namespace MarketApplication.Servers.Concrete
             return products;
         }
 
-        public int AddSales(int id)
+        public static int AddSale(int id, int count, DateTime date)
         {
-            if (id < 0)
-                throw new Exception("Price can't be less than 0!");
-            var sales = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Doctor with ID:{id} was not found!");
+            var product = Products.Where(x => x.Id == id).Select(n => n).ToList() ?? throw new Exception($"Product with ID:{id} was not found!");
+            var saleItem = new SaleItem
+            {
+                Count = count,
+                SaleProduct = product
+            };
+            SaleItems.Add(saleItem);
+            if(count <= 0)
+            {
+                throw new Exception($"Count can not be less than 0!");
+            }
+            var price = product.Select(i => i.Price).ToArray();
+            var amount = price[0] * (Convert.ToDecimal(count));
             var sale = new Sale
             {
-               
+                Date = date,
+                Amount = amount,
+                Items = SaleItems
             };
             Sales.Add(sale);
 
             return Sales.Count;
+        }
+        public static List<Sale> ShowSales()
+        {
+            int count = SaleItems.Count;
+            return Sales;
+        }
+        public static List<Sale> DeleteSale(int id)
+        {
+            var product = Sales.Where(x => x.Id == id).Select(n => n).ToList() ?? throw new Exception($"Product with ID:{id} was not found!");
+           // Sales.Remove(SaleItems);
+            return Sales;
         }
     }
 }

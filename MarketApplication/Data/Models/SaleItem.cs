@@ -5,6 +5,6 @@ namespace MarketApplication.Data.Models
     public class SaleItem : BaseModel
     {
         public int Count { get; set; }
-        public List<Product> Product { get; set; } = new();
+        public List<Product> SaleProduct { get; set; } = new();
     }
 }
