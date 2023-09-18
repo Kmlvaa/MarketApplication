@@ -73,40 +73,45 @@ namespace MarketApplication.Servers.Concrete
             return products;
         }
 
-        public static int AddSale(int id, int count, DateTime date)
+        public static int AddSale(int count)
         {
-            var product = Products.Where(x => x.Id == id).Select(n => n).ToList() ?? throw new Exception($"Product with ID:{id} was not found!");
-            var saleItem = new SaleItem
+            var sale = new Sale();
+            Console.Write("Enter number of saleItems: ");
+            int num = int.Parse(Console.ReadLine()!);
+            int id;
+            var product = new Product { };
+            ;
+            for (int i = 0; i < num; i++)
             {
-                Count = count,
-                SaleProduct = product
-            };
-            SaleItems.Add(saleItem);
-            if(count <= 0)
-            {
-                throw new Exception($"Count can not be less than 0!");
+                Console.Write("Enter sale's id: ");
+                id = int.Parse(Console.ReadLine()!);
+                product = Products.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
+                var saleItem = new SaleItem { 
+                   Count = count,
+                   SaleProduct = product
+                };
+                sale.Items.Add(saleItem);
             }
-            var price = product.Select(i => i.Price).ToArray();
-            var amount = price[0] * (Convert.ToDecimal(count));
-            var sale = new Sale
-            {
-                Date = date,
-                Amount = amount,
-                Items = SaleItems
-            };
-            Sales.Add(sale);
+                var price = sale.Items.Select(x => x.SaleProduct.Price);
+                
+
+                sale.Date = DateTime.Now;
+            sale.Amount = 0;
+                if (count > 0)
+                {
+                    throw new Exception("The number of products cannot exceed the number in stock!");
+                }
 
             return Sales.Count;
         }
         public static List<Sale> ShowSales()
         {
-            int count = SaleItems.Count;
             return Sales;
         }
         public static List<Sale> DeleteSale(int id)
         {
-            var product = Sales.Where(x => x.Id == id).Select(n => n).ToList() ?? throw new Exception($"Product with ID:{id} was not found!");
-           // Sales.Remove(SaleItems);
+            var product = SaleItems.Where(x => x.Id == id).Select(n => n) ?? throw new Exception($"Product with ID:{id} was not found!");
+            SaleItems.Remove((SaleItem)product);
             return Sales;
         }
     }

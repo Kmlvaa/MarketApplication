@@ -163,16 +163,10 @@ namespace MarketApplication.Servers.Concrete
         {
             try
             {
-                Console.Write("Enter sale's id: ");
-                int id = int.Parse(Console.ReadLine()!);
+                 Console.Write("Enter sale's count: ");
+                 int count = int.Parse(Console.ReadLine()!);
 
-                Console.Write("Enter sale's count: ");
-                int count = int.Parse(Console.ReadLine()!);
-
-                Console.Write("Enter sale's date (dd/MM/yyyy - HH:mm)");
-                var date = DateTime.ParseExact(Console.ReadLine()!, "dd/MM/yyyy - HH:mm", null);
-
-                MarketService.AddSale(id, count, date);
+                 MarketService.AddSale(count);
             }
             catch(Exception ex)
             {
@@ -182,14 +176,27 @@ namespace MarketApplication.Servers.Concrete
         public static void MenuShowSales()
         {
 
-            var table = new ConsoleTable("ID", "Count", "Amount", "Date");
+            var table = new ConsoleTable("ID", "Amount", "Date");
 
             foreach (var sale in MarketService.ShowSales())
             {
-               //table.AddRow(sale.Id, sale.Items.ForEach(x => x.SaleProduct), sale.Amount, sale.Date);
+               table.AddRow(sale.Id, sale.Amount, sale.Date);
             }
 
             table.Write();
+        }
+        public static void MenuDeleteSales()
+        {
+            try
+            {
+                Console.Write("Enter product's ID: ");
+                int id = int.Parse(Console.ReadLine()!);
+                MarketService.DeleteSale(id);
+            }
+            catch(Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
         }
     }
 }
