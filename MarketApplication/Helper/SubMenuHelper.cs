@@ -41,16 +41,16 @@ namespace MarketApplication.Helper
                         MenuService.MenuUpdateProduct();
                         break;
                     case 4:
-                        MenuService.MenuShowProduct();
+                        MenuService.MenuGetProduct();
                         break;
                     case 5:
-                        MenuService.MenuShowProductsByCategory();
+                        MenuService.MenuGetProductsByCategory();
                         break;
                     case 6:
-                        MenuService.MenuShowProductsByName();
+                        MenuService.MenuGetProductsByName();
                         break;
                     case 7:
-                        MenuService.MenuShowProductsByPriceRange();
+                        MenuService.MenuGetProductsByPriceRange();
                         break;
                     case 0:
                         break;
@@ -95,7 +95,7 @@ namespace MarketApplication.Helper
                     case 3:
                         break;
                     case 4:
-                        MenuService.MenuShowSales();
+                        MenuService.MenuGetSales();
                         break;
                     case 0:
                         break;

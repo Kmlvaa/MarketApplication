@@ -11,7 +11,7 @@ namespace MarketApplication.Servers.Concrete
     {
         //private static IMarket MarketService = new MarketService();
            
-        public static void MenuShowProduct()
+        public static void MenuGetProduct()
         {
             var table = new ConsoleTable("ID", "Name", "Category", "Count", "Price");
 
@@ -87,7 +87,7 @@ namespace MarketApplication.Servers.Concrete
                 Console.WriteLine(ex.Message);
             }
         }
-        public static void MenuShowProductsByCategory()
+        public static void MenuGetProductsByCategory()
         {
             try
             {
@@ -101,7 +101,7 @@ namespace MarketApplication.Servers.Concrete
 
                 var table = new ConsoleTable("ID", "Name", "Category", "Count", "Price");
 
-                foreach (var product in MarketService.ShowProductsByCategory(category))
+                foreach (var product in MarketService.GetProductsByCategory(category))
                 {
                     table.AddRow(product.Id, product.Name, product.Categories, product.Count, product.Price);
                 }
@@ -114,7 +114,7 @@ namespace MarketApplication.Servers.Concrete
             }
 
         }
-        public static void MenuShowProductsByName()
+        public static void MenuGetProductsByName()
         {
             try
             {
@@ -123,7 +123,7 @@ namespace MarketApplication.Servers.Concrete
 
                 var table = new ConsoleTable("ID", "Name", "Category", "Count", "Price");
 
-                foreach (var product in MarketService.ShowProductsByName(name))
+                foreach (var product in MarketService.GetProductsByName(name))
                 {
                     table.AddRow(product.Id, product.Name, product.Categories, product.Count, product.Price);
                 }
@@ -135,7 +135,7 @@ namespace MarketApplication.Servers.Concrete
                Console.WriteLine(ex.Message); 
             }
         }
-        public static void MenuShowProductsByPriceRange()
+        public static void MenuGetProductsByPriceRange()
         {
             try
             {
@@ -147,7 +147,7 @@ namespace MarketApplication.Servers.Concrete
 
                 var table = new ConsoleTable("ID", "Name", "Category", "Count", "Price");
 
-                foreach (var product in MarketService.ShowProductsByPriceRange(min, max))
+                foreach (var product in MarketService.GetProductsByPriceRange(min, max))
                 {
                     table.AddRow(product.Id, product.Name, product.Categories, product.Count, product.Price);
                 }
@@ -163,22 +163,22 @@ namespace MarketApplication.Servers.Concrete
         {
             try
             {
-                 Console.Write("Enter sale's count: ");
-                 int count = int.Parse(Console.ReadLine()!);
+                 Console.Write("Enter number of saleItems: ");
+                 int num = int.Parse(Console.ReadLine()!);
 
-                 MarketService.AddSale(count);
+                 MarketService.AddSale(num);
             }
             catch(Exception ex)
             {
                 Console.WriteLine(ex.Message);
             }
         }
-        public static void MenuShowSales()
+        public static void MenuGetSales()
         {
 
             var table = new ConsoleTable("ID", "Amount", "Date");
 
-            foreach (var sale in MarketService.ShowSales())
+            foreach (var sale in MarketService.GetSales())
             {
                table.AddRow(sale.Id, sale.Amount, sale.Date);
             }

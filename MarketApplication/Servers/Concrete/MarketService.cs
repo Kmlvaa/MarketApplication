@@ -55,63 +55,69 @@ namespace MarketApplication.Servers.Concrete
             product.Count = count;
             return Products;
         }
-        public static List<Product> ShowProductsByCategory(int value)
+        public static List<Product> GetProductsByCategory(int value)
         {
             var category = Enum.GetName(typeof(Category), value);
             if (category is null) throw new Exception($"Category is invalid!");
             var prd = Products.Where(x => x.Categories.ToString().Contains(category)).ToList();
             return prd;
         }
-        public static List<Product> ShowProductsByName(string name)
+        public static List<Product> GetProductsByName(string name)
         {
             var products = Products.FindAll(x => x.Name == name).ToList() ?? throw new Exception($"Products with name {name} does not exist!");
             return products;
         }
-        public static List<Product> ShowProductsByPriceRange(decimal minValue, decimal maxValue)
+        public static List<Product> GetProductsByPriceRange(decimal minValue, decimal maxValue)
         {
             var products = Products.Where(x => x.Price >= minValue &&  x.Price <= maxValue).ToList() ?? throw new Exception("There is no product in this price range");
             return products;
         }
 
-        public static int AddSale(int count)
+        public static int AddSale(int num)
         {
             var sale = new Sale();
-            Console.Write("Enter number of saleItems: ");
-            int num = int.Parse(Console.ReadLine()!);
-            int id;
-            var product = new Product { };
-            ;
+            var product = new Product();
+            int count;
+            decimal price = 0,amount = 0;
             for (int i = 0; i < num; i++)
             {
                 Console.Write("Enter sale's id: ");
-                id = int.Parse(Console.ReadLine()!);
+                int id = int.Parse(Console.ReadLine()!);
+
+                Console.Write("Enter sale's count: ");
+                count = int.Parse(Console.ReadLine()!);
+
                 product = Products.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
                 var saleItem = new SaleItem { 
                    Count = count,
                    SaleProduct = product
                 };
                 sale.Items.Add(saleItem);
-            }
-                var price = sale.Items.Select(x => x.SaleProduct.Price);
-                
+                price = count * product.Price;
+                amount += price;
 
-                sale.Date = DateTime.Now;
-            sale.Amount = 0;
-                if (count > 0)
+                if (count > product.Count)
                 {
                     throw new Exception("The number of products cannot exceed the number in stock!");
                 }
+                product.Count -= count;
+                SaleItems.Add(saleItem);
+            }
+            sale.Date = DateTime.Now;
+            sale.Amount = amount;
+            Sales.Add(sale);
 
-            return Sales.Count;
+            return sale.Id;
         }
-        public static List<Sale> ShowSales()
+        public static List<Sale> GetSales()
         {
             return Sales;
         }
         public static List<Sale> DeleteSale(int id)
         {
-            var product = SaleItems.Where(x => x.Id == id).Select(n => n) ?? throw new Exception($"Product with ID:{id} was not found!");
-            SaleItems.Remove((SaleItem)product);
+            var product = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
+            //var x = SaleItems.Remove(product);
+            Sales.Remove();
             return Sales;
         }
     }
