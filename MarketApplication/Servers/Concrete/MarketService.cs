@@ -111,13 +111,39 @@ namespace MarketApplication.Servers.Concrete
         }
         public static List<Sale> GetSales()
         {
+            SaleItems.ForEach(SaleItems.Add);
             return Sales;
         }
         public static List<Sale> DeleteSale(int id)
         {
             var product = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
             //var x = SaleItems.Remove(product);
-            Sales.Remove();
+            Sales.Remove(product);
+            return Sales;
+        }
+        public static List<Sale> SaleWithDraw(int num)
+        {
+            Console.Write("Enter sale's ID:");
+            int saleId = int.Parse(Console.ReadLine()!);
+
+            for (int i = 0; i < num; i++)
+            {
+                Console.Write("Enter saleItem's ID:");
+                int saleItemId = int.Parse(Console.ReadLine()!);
+
+                Console.Write("Enter saleItem's count:");
+                int count = int.Parse(Console.ReadLine()!);
+                
+                var sale = Sales.FirstOrDefault(x => x.Id == saleId) ?? throw new Exception($"Product with ID:{saleId} was not found!");
+                var saleItem = SaleItems.FirstOrDefault(x => x.Id == saleItemId) ?? throw new Exception($"Product with ID:{saleItemId} was not found!");
+                saleItem.Count -= count;
+                sale.Amount -= count * saleItem.SaleProduct!.Price; 
+                saleItem.SaleProduct!.Count += count;
+                if(count > saleItem.Count)
+                {
+                    throw new Exception("Count can not be less than saleItem's count!");
+                }
+            }
             return Sales;
         }
     }

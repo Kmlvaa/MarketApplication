@@ -93,6 +93,7 @@ namespace MarketApplication.Helper
                         MenuService.MenuDeleteSales();
                         break;
                     case 3:
+                        MenuService.MenuSaleWithDraw();
                         break;
                     case 4:
                         MenuService.MenuGetSales();

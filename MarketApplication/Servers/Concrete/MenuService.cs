@@ -180,7 +180,7 @@ namespace MarketApplication.Servers.Concrete
 
             foreach (var sale in MarketService.GetSales())
             {
-               table.AddRow(sale.Id, sale.Amount, sale.Date);
+                table.AddRow(sale.Id, sale.Amount, sale.Date);
             }
 
             table.Write();
@@ -197,6 +197,12 @@ namespace MarketApplication.Servers.Concrete
             {
                 Console.WriteLine(ex.Message);
             }
+        }
+        public static void MenuSaleWithDraw()
+        {
+            Console.Write("Enter number of Product to return: ");
+            int num = int.Parse(Console.ReadLine()!);
+            MarketService.SaleWithDraw(num);
         }
     }
 }
