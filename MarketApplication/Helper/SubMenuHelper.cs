@@ -68,7 +68,7 @@ namespace MarketApplication.Helper
                 Console.WriteLine("----------------------------");
                 Console.WriteLine("1. Add Sale");
                 Console.WriteLine("2. Delete Sale");
-                Console.WriteLine("3. Update Sale");
+                Console.WriteLine("3. Return Sale");
                 Console.WriteLine("4. Show Sales");
                 Console.WriteLine("5. Show Sale by id");
                 Console.WriteLine("6. Show Sale by date");
@@ -97,6 +97,9 @@ namespace MarketApplication.Helper
                         break;
                     case 4:
                         MenuService.MenuGetSales();
+                        break;
+                    case 5:
+                        MenuService.MenuGetSaleById();
                         break;
                     case 0:
                         break;

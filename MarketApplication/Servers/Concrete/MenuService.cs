@@ -182,7 +182,6 @@ namespace MarketApplication.Servers.Concrete
             {
                 table.AddRow(sale.Id, sale.Amount, sale.Date);
             }
-
             table.Write();
         }
         public static void MenuDeleteSales()
@@ -203,6 +202,53 @@ namespace MarketApplication.Servers.Concrete
             Console.Write("Enter number of Product to return: ");
             int num = int.Parse(Console.ReadLine()!);
             MarketService.SaleWithDraw(num);
+        }
+        public static void MenuGetSaleById()
+        {
+            Console.Write("Enter sale's ID: ");
+            int id = int.Parse(Console.ReadLine()!);
+
+            //var sales = MarketService.Sales.Where(x => x.Id == id).ToList();
+            //var saleItems = sales.Select(x => x.Items);
+            //int num = saleItems.Select(a => a.)
+            //int saleItemCount = 0;
+            //saleItemCount += saleItems;
+            int count = 0;
+            var table = new ConsoleTable("ID", "Total Count", "Amount", "Date");
+
+            foreach (var sale in MarketService.GetSaleById(id))
+            {
+                foreach (var item in MarketService.GetSaleItemsBySaleId(id))
+                {
+                    count += item.Count;
+                    table.AddRow(sale.Id,count, sale.Amount, sale.Date);
+
+                }
+            }
+            table.Write();
+            Console.WriteLine("---------------------------------------");
+            var table2 = new ConsoleTable("SaleItem ID", "Product", "Count", "Price");
+            foreach (var saleItem in MarketService.GetSaleItemsBySaleId(id))
+            {
+                table2.AddRow(saleItem.Id, saleItem.SaleProduct!.Name, saleItem.Count, saleItem.SaleProduct.Price);
+            }
+            table2.Write();
+        }
+        public static void MenuGetSalesByPriceRange()
+        {
+            Console.Write("Enter sale's ID: ");
+            decimal min = decimal.Parse(Console.ReadLine()!);
+
+            Console.Write("Enter sale's ID: ");
+            decimal max = decimal.Parse(Console.ReadLine()!);
+
+            var table = new ConsoleTable("ID", "Amount", "Date");
+
+            foreach (var sale in MarketService.GetSalesByPriceRange(min, max))
+            {
+                table.AddRow(sale.Id, sale.Amount, sale.Date);
+            }
+            table.Write();
         }
     }
 }
