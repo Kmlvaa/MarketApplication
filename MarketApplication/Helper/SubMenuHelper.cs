@@ -101,6 +101,15 @@ namespace MarketApplication.Helper
                     case 5:
                         MenuService.MenuGetSaleById();
                         break;
+                    case 6:
+                        MenuService.MenuGetSalesByDate();
+                        break;
+                    case 7:
+                        MenuService.MenuGetSalesByDateRange();
+                        break;
+                    case 8:
+                        MenuService.MenuGetSalesByPriceRange();
+                        break;
                     case 0:
                         break;
                     default:

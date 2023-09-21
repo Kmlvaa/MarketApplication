@@ -1,22 +1,25 @@
 ﻿using MarketApplication.Data.Enum;
 using MarketApplication.Data.Models;
+using MarketApplication.Servers.Abstract;
 
 namespace MarketApplication.Servers.Concrete
 {
-    public class MarketService //: IMarket
+    public class MarketService : IMarket
     {
         public static List<Product> Products = new();
         public static List<SaleItem> SaleItems = new();
         public static List<Sale> Sales = new();
 
-        public static List<Product> GetProduct()
+        public List<Product> GetProducts()
         {
             return Products;
         }
-        public static int AddProduct(Category category, string productName, decimal price, int count)
+        public int AddProduct(Category category, string productName, decimal price, int count)
         {
             if (string.IsNullOrWhiteSpace(productName))
                 throw new Exception("Product name can't be empty!");
+            if (!Enum.IsDefined(typeof(Category), category))
+                throw new Exception("Category is not found!");
             if (price < 0)
                 throw new Exception("Price can't be less than 0!");
             if (count <= 0)
@@ -34,18 +37,20 @@ namespace MarketApplication.Servers.Concrete
 
             return product.Count;
         }
-        public static int DeleteProduct(int id)
+        public int DeleteProduct(int id)
         {
             if (id < 0) throw new Exception("ID can not be less than 0!");
             var product = Products.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
             Products.Remove(product);
             return product.Count;
         }
-        public static List<Product> UpdateProduct(int id, int count, decimal price, string name)
+        public List<Product> UpdateProduct(int id, int count, decimal price, string name, Category category)
         {
             var product = Products.FirstOrDefault(x => x.Id == id)?? throw new Exception($"Product with ID{id} could not found!");
             if (string.IsNullOrWhiteSpace(name))
-                throw new Exception("Name can't be empty!");
+                throw new Exception("Name can not be empty!");
+            if (!Enum.IsDefined(typeof(Category), category))
+                throw new Exception("Category is not found!");
             if (count <= 0)
                 throw new Exception("Count can not be less than zero!");
             if (price < 0)
@@ -53,31 +58,36 @@ namespace MarketApplication.Servers.Concrete
             product.Price = price;
             product.Name = name;
             product.Count = count;
+            product.Categories = category;
             return Products;
         }
-        public static List<Product> GetProductsByCategory(int value)
+        public List<Product> GetProductsByCategory(int value)
         {
             var category = Enum.GetName(typeof(Category), value);
             if (category is null) throw new Exception($"Category is invalid!");
             var prd = Products.Where(x => x.Categories.ToString().Contains(category)).ToList();
             return prd;
         }
-        public static List<Product> GetProductsByName(string name)
+        public List<Product> GetProductsByName(string name)
         {
             var products = Products.FindAll(x => x.Name == name).ToList() ?? throw new Exception($"Products with name {name} does not exist!");
             return products;
         }
-        public static List<Product> GetProductsByPriceRange(decimal minValue, decimal maxValue)
+        public List<Product> GetProductsByPriceRange(decimal minValue, decimal maxValue)
         {
-            var products = Products.Where(x => x.Price >= minValue &&  x.Price <= maxValue).ToList() ?? throw new Exception("There is no product in this price range");
+            var products = Products.Where(x => x.Price >= minValue &&  x.Price <= maxValue).ToList() ?? throw new Exception("No matching products found");
             return products;
         }
 
-        public static int AddSale(int num)
+        public int AddSale(int num)
         {
             var sale = new Sale();
             var product = new Product();
             int count;
+            if(num > Products.Count)
+            {
+                throw new Exception("There is not enough product in stock!");
+            }
             decimal price = 0,amount = 0;
             for (int i = 0; i < num; i++)
             {
@@ -109,70 +119,104 @@ namespace MarketApplication.Servers.Concrete
 
             return sale.Id;
         }
-        public static List<Sale> GetSales()
+        public List<Sale> GetSales()
         {
             return Sales;
         }
-        public static List<SaleItem> GetSaleItems()
+        //THIS METHOD IS FOR GETTING SALEITEMS FROM SALE
+        public List<Sale> GetSaleItems()
         {
-            return SaleItems;
+            var sale = Sales.Select(x => x.Items.FirstOrDefault());
+            return (List<Sale>)sale;
         }
-        public static List<Sale> DeleteSale(int id)
+        public List<Sale> DeleteSale(int id)
         {
-            var product = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
+            //Filter sales by id and Check if there is no sale 
+            var product = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Sale with ID:{id} was not found!");
+            //Remove product from sale
             Sales.Remove(product);
+
             return Sales;
         }
-        public static List<Sale> SaleWithDraw(int num)
+        //THIS METHOD IS FOR RETURNING ANY PRODUCT FROM SALE
+        public List<Sale> SaleWithDraw(int saleId)
         {
-            Console.Write("Enter sale's ID:");
-            int saleId = int.Parse(Console.ReadLine()!);
-            //int saleItemId = 0, count = 0;
+            Console.Write("Enter number of Product to return: ");
+            int num = int.Parse(Console.ReadLine()!);
             for (int i = 0; i < num; i++)
             {
+                //Filter sales by id and Check if there is no sale in this range
+                var sale = Sales.FirstOrDefault(x => x.Id == saleId) ?? throw new Exception($"Sale with ID:{saleId} was not found!");
+                
                 Console.Write("Enter saleItem's ID:");
                 var saleItemId = int.Parse(Console.ReadLine()!);
 
                 Console.Write("Enter saleItem's count:");
                 var count = int.Parse(Console.ReadLine()!);
-
-                var sale = Sales.FirstOrDefault(x => x.Id == saleId) ?? throw new Exception($"Product with ID:{saleId} was not found!");
+                //Filter saleItems by id and Check if there is no sale in this range
                 var saleItem = SaleItems.FirstOrDefault(x => x.Id == saleItemId) ?? throw new Exception($"Product with ID:{saleItemId} was not found!");
+                
                 if(count > saleItem.Count)
                 {
                      throw new Exception("Count can not be less than saleItem's count!");
                 }
+                //Reduce saleItem's count in sale after returning product
                 saleItem.Count -= count;
+                //Reduce total amount of sale after returnin product
                 sale.Amount -= count * saleItem.SaleProduct!.Price; 
+                //Increases count of products in stock
                 saleItem.SaleProduct!.Count += count;
             }
             return Sales;
         }
-        public static List<Sale> GetSaleById(int id)
+        //RETURN SALES WITHIN THE ID
+        public List<Sale> GetSaleById(int id)
         {
-            var sale = Sales.Where(x => x.Id == id).ToList() ?? throw new Exception($"Product with ID:{id} was not found!");
+            //Filter sales by id and Check if there is no sale in this range
+            var sale = Sales.Where(x => x.Id == id).ToList() ?? throw new Exception($"Sale with ID:{id} was not found!");
             return sale;
         }
-        public static List<SaleItem> GetSaleItemsBySaleId(int id)
+
+        //RETURN PRODUCTS IN SALE
+        public List<SaleItem> GetSaleItemsBySaleId(int id)
         {
-            var saleItems = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
+            //Filter sales by id and Check if there is no sale
+            var saleItems = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"SaleItem with ID:{id} is not found!");
             return saleItems.Items;
         }
-        public static int GetSaleCount(int id)
+        public List<Sale> GetSalesByPriceRange(decimal min, decimal max)
         {
-            int count = 0;
-            var sale = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
-            for( int i = 0; i < sale.Items.Count; i++)
-            {
-               // count += sale.Items.FindAll(x => x.Count).ToList();
-            }
-            return 0;
-        }
-        public static List<Sale> GetSalesByPriceRange(decimal min, decimal max)
-        {
+            //Filter sales within the price range
             var price = Sales.Where(x => x.Amount >= min && x.Amount <= max).ToList();
-            if (price == null)  throw new Exception($"There is no matching sale!");
+
+            //Check if there is no sale in this range
+            if (price == null)  throw new Exception($"No matching sales found!");
             return price;
+        }
+        public List<Sale> GetSalesByDateRange(DateTime min, DateTime max)
+        {
+            //Chech if min date is greater than max date
+            if(min > max)
+            {
+                throw new Exception("Min date can not be greater than max date!");
+            }
+            //Filter sales within the date range
+            var date = Sales.Where(x => x.Date >= min && x.Date <= max).ToList();
+
+            //Check if there is no sale in this range
+            if (date == null) throw new Exception($"No matching sales found!");
+
+            return date;
+        }
+        public List<Sale> GetSalesByDate(DateTime date)
+        {
+            //Filter sales by date
+            var dateTime = Sales.Where(x => x.Date == date).ToList();
+
+            //Check if there is no sale in this date
+            if (dateTime == null) throw new Exception($"Sale with date:{dateTime} is not found!");
+
+            return dateTime;
         }
     }
 }
