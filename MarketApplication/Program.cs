@@ -8,6 +8,7 @@ namespace MarketApplication
         {
             int selectedOption;
 
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             Console.WriteLine("Welcome to Market!");
 
             do
@@ -18,8 +19,8 @@ namespace MarketApplication
 
                 Console.WriteLine("0. Exit");
                 Console.WriteLine("----------------------------");
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Please, select an option:");
-
                 while (!int.TryParse(Console.ReadLine(), out selectedOption))
                 {
                     Console.WriteLine("Please enter valid option:");

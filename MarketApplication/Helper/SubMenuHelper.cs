@@ -11,6 +11,7 @@ namespace MarketApplication.Helper
 
             do
             {
+                Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("----------------------------");
                 Console.WriteLine("1. Add Product");
                 Console.WriteLine("2. Delete Product");
@@ -22,6 +23,7 @@ namespace MarketApplication.Helper
 
                 Console.WriteLine("0. Exit");
                 Console.WriteLine("----------------------------");
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Please, select an option:");
 
                 while (!int.TryParse(Console.ReadLine(), out selectedOption))
@@ -64,7 +66,9 @@ namespace MarketApplication.Helper
         {
             int selectedOption;
 
-            do{
+            do
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine("----------------------------");
                 Console.WriteLine("1. Add Sale");
                 Console.WriteLine("2. Delete Sale");
@@ -77,13 +81,13 @@ namespace MarketApplication.Helper
 
                 Console.WriteLine("0. Exit");
                 Console.WriteLine("----------------------------");
+                Console.ForegroundColor = ConsoleColor.White;
                 Console.Write("Please, select an option:");
 
                 while (!int.TryParse(Console.ReadLine(), out selectedOption))
                 {
                     Console.WriteLine("Please enter valid option:");
                 }
-
                 switch (selectedOption)
                 {
                     case 1:

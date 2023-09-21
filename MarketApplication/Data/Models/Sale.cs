@@ -10,6 +10,8 @@ namespace MarketApplication.Data.Models
         {
             Id = _id;
             _id++;
+            var date = DateTime.Now;
+            Date = new DateTime(date.Year,date.Month,date.Day,date.Hour,date.Minute,date.Second);
         }
         public decimal Amount { get; set; }
         public DateTime Date { get; set; }

@@ -16,15 +16,25 @@ namespace MarketApplication.Servers.Concrete
         }
         public int AddProduct(Category category, string productName, decimal price, int count)
         {
+            //check if given string is null or white space
             if (string.IsNullOrWhiteSpace(productName))
                 throw new Exception("Product name can't be empty!");
+
+            //check if given name is number
+            if (productName.All(char.IsDigit))
+                throw new Exception("Product name can not be number!");
+
+            //check if given number is matching with the category within eNum(Category)
             if (!Enum.IsDefined(typeof(Category), category))
                 throw new Exception("Category is not found!");
+
+            //check if price and count is less than zero
             if (price < 0)
                 throw new Exception("Price can't be less than 0!");
             if (count <= 0)
                 throw new Exception("Count can't be less than 0!");
 
+            //create new instance of product class and push the values 
             var product = new Product
             {
                 Price = price,
@@ -32,21 +42,26 @@ namespace MarketApplication.Servers.Concrete
                 Count = count,
                 Categories = category
             };
-
+            //Adds object to Products list
             Products.Add(product);
 
             return product.Count;
         }
         public int DeleteProduct(int id)
-        {
-            if (id < 0) throw new Exception("ID can not be less than 0!");
+        { 
+            //Filter products by id and Checks id to detect exception
             var product = Products.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
+            //Removes product with given id from list
             Products.Remove(product);
+
             return product.Count;
         }
         public List<Product> UpdateProduct(int id, int count, decimal price, string name, Category category)
         {
+            //Filter products by id and Checks id to detect exception
             var product = Products.FirstOrDefault(x => x.Id == id)?? throw new Exception($"Product with ID{id} could not found!");
+            
+            //Checks data to detect exceptions
             if (string.IsNullOrWhiteSpace(name))
                 throw new Exception("Name can not be empty!");
             if (!Enum.IsDefined(typeof(Category), category))
@@ -55,36 +70,52 @@ namespace MarketApplication.Servers.Concrete
                 throw new Exception("Count can not be less than zero!");
             if (price < 0)
                 throw new Exception("Price can not be less than zero!");
+            //Update product's datas 
             product.Price = price;
             product.Name = name;
             product.Count = count;
             product.Categories = category;
+
             return Products;
         }
         public List<Product> GetProductsByCategory(int value)
         {
+            //Checks if given numbers are matching with category values
             var category = Enum.GetName(typeof(Category), value);
             if (category is null) throw new Exception($"Category is invalid!");
+
+            //Filter products by category and Checks to detect exception
             var prd = Products.Where(x => x.Categories.ToString().Contains(category)).ToList();
+
             return prd;
         }
         public List<Product> GetProductsByName(string name)
         {
+            //Filter products by name and Checks to detect exception
             var products = Products.FindAll(x => x.Name == name).ToList() ?? throw new Exception($"Products with name {name} does not exist!");
+            
             return products;
         }
         public List<Product> GetProductsByPriceRange(decimal minValue, decimal maxValue)
         {
+            //Checks if min value is bigger than max value
+            if(maxValue < minValue)
+                throw new Exception("Min value can not be less than max value!");
+
+            //Filter products within price range and Checks to detect exception
             var products = Products.Where(x => x.Price >= minValue &&  x.Price <= maxValue).ToList() ?? throw new Exception("No matching products found");
+            
             return products;
         }
 
         public int AddSale(int num)
         {
+            //Creates new Sale and Product objects
             var sale = new Sale();
             var product = new Product();
             int count;
-            if(num > Products.Count)
+            //Checks whether the entered quantity is available in stock or not
+            if (num > Products.Count)
             {
                 throw new Exception("There is not enough product in stock!");
             }
@@ -97,12 +128,16 @@ namespace MarketApplication.Servers.Concrete
                 Console.Write("Enter product's count: ");
                 count = int.Parse(Console.ReadLine()!);
 
+                //Filter list by id and detect exception
                 product = Products.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
+                
+                //Sets SaleItem object's properties
                 var saleItem = new SaleItem { 
                    Count = count,
                    SaleProduct = product
                 };
                 sale.Items.Add(saleItem);
+
                 price = count * product.Price;
                 amount += price;
 
@@ -110,10 +145,12 @@ namespace MarketApplication.Servers.Concrete
                 {
                     throw new Exception("The number of products cannot exceed the number in stock!");
                 }
+                //Reduces the number of products in stock
                 product.Count -= count;
                 SaleItems.Add(saleItem);
             }
-            sale.Date = DateTime.Now;
+            //Sets sale objects properties
+            //sale.Date = DateTime.Now;
             sale.Amount = amount;
             Sales.Add(sale);
 
@@ -182,6 +219,7 @@ namespace MarketApplication.Servers.Concrete
         {
             //Filter sales by id and Check if there is no sale
             var saleItems = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"SaleItem with ID:{id} is not found!");
+            
             return saleItems.Items;
         }
         public List<Sale> GetSalesByPriceRange(decimal min, decimal max)
@@ -191,6 +229,7 @@ namespace MarketApplication.Servers.Concrete
 
             //Check if there is no sale in this range
             if (price == null)  throw new Exception($"No matching sales found!");
+
             return price;
         }
         public List<Sale> GetSalesByDateRange(DateTime min, DateTime max)
