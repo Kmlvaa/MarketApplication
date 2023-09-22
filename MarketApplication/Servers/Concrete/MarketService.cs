@@ -47,6 +47,7 @@ namespace MarketApplication.Servers.Concrete
 
             return product.Count;
         }
+
         public int DeleteProduct(int id)
         { 
             //Filter products by id and Checks id to detect exception
@@ -56,6 +57,7 @@ namespace MarketApplication.Servers.Concrete
 
             return product.Count;
         }
+
         public List<Product> UpdateProduct(int id, int count, decimal price, string name, Category category)
         {
             //Filter products by id and Checks id to detect exception
@@ -78,6 +80,7 @@ namespace MarketApplication.Servers.Concrete
 
             return Products;
         }
+
         public List<Product> GetProductsByCategory(int value)
         {
             //Checks if given numbers are matching with category values
@@ -89,6 +92,7 @@ namespace MarketApplication.Servers.Concrete
 
             return prd;
         }
+
         public List<Product> GetProductsByName(string name)
         {
             //Filter products by name and Checks to detect exception
@@ -96,6 +100,7 @@ namespace MarketApplication.Servers.Concrete
             
             return products;
         }
+
         public List<Product> GetProductsByPriceRange(decimal minValue, decimal maxValue)
         {
             //Checks if min value is bigger than max value
@@ -113,11 +118,15 @@ namespace MarketApplication.Servers.Concrete
             //Creates new Sale and Product objects
             var sale = new Sale();
             var product = new Product();
-            int count;
+            int count = 0;
             //Checks whether the entered quantity is available in stock or not
             if (num > Products.Count)
             {
                 throw new Exception("There is not enough product in stock!");
+            }
+            if(num == 0)
+            {
+                throw new Exception("End!");
             }
             decimal price = 0,amount = 0;
             for (int i = 0; i < num; i++)
@@ -125,11 +134,13 @@ namespace MarketApplication.Servers.Concrete
                 Console.Write("Enter product's id: ");
                 int id = int.Parse(Console.ReadLine()!);
 
-                Console.Write("Enter product's count: ");
-                count = int.Parse(Console.ReadLine()!);
-
                 //Filter list by id and detect exception
                 product = Products.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
+                
+                Console.Write("Enter product's count: ");
+                count = int.Parse(Console.ReadLine()!);
+                if (count == 0) throw new Exception("Could not add 0 product1");
+                if (count > product.Count) throw new Exception("The number of products cannot exceed the number in stock!");
                 
                 //Sets SaleItem object's properties
                 var saleItem = new SaleItem { 
@@ -141,31 +152,30 @@ namespace MarketApplication.Servers.Concrete
                 price = count * product.Price;
                 amount += price;
 
-                if (count > product.Count)
-                {
-                    throw new Exception("The number of products cannot exceed the number in stock!");
-                }
                 //Reduces the number of products in stock
                 product.Count -= count;
                 SaleItems.Add(saleItem);
             }
+            
             //Sets sale objects properties
-            //sale.Date = DateTime.Now;
             sale.Amount = amount;
             Sales.Add(sale);
 
             return sale.Id;
         }
+
         public List<Sale> GetSales()
         {
             return Sales;
         }
+
         //THIS METHOD IS FOR GETTING SALEITEMS FROM SALE
         public List<Sale> GetSaleItems()
         {
             var sale = Sales.Select(x => x.Items.FirstOrDefault());
             return (List<Sale>)sale;
         }
+
         public List<Sale> DeleteSale(int id)
         {
             //Filter sales by id and Check if there is no sale 
@@ -175,6 +185,7 @@ namespace MarketApplication.Servers.Concrete
 
             return Sales;
         }
+
         //THIS METHOD IS FOR RETURNING ANY PRODUCT FROM SALE
         public List<Sale> SaleWithDraw(int saleId)
         {
@@ -199,6 +210,14 @@ namespace MarketApplication.Servers.Concrete
                 }
                 //Reduce saleItem's count in sale after returning product
                 saleItem.Count -= count;
+                if(saleItem.Count == 0)
+                {
+                    sale.Items.Remove(saleItem);
+                }
+                if(sale.Items.Count == 0)
+                {
+                    Sales.Remove(sale);
+                }
                 //Reduce total amount of sale after returnin product
                 sale.Amount -= count * saleItem.SaleProduct!.Price; 
                 //Increases count of products in stock
@@ -206,6 +225,7 @@ namespace MarketApplication.Servers.Concrete
             }
             return Sales;
         }
+
         //RETURN SALES WITHIN THE ID
         public List<Sale> GetSaleById(int id)
         {
