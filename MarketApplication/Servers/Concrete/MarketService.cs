@@ -1,6 +1,7 @@
 ﻿using MarketApplication.Data.Enum;
 using MarketApplication.Data.Models;
 using MarketApplication.Servers.Abstract;
+using System.ComponentModel;
 
 namespace MarketApplication.Servers.Concrete
 {
@@ -117,24 +118,25 @@ namespace MarketApplication.Servers.Concrete
         {
             //Creates new Sale object
             var sale = new Sale();
+            Sales.Add(sale);
             int saleID = sale.Id;
             try
             {
-                //checks if user input 0 as an count
+                //checks if user input 0 as an count 
                 if (num == 0)
                 {
                     throw new Exception("End!");
                 }
-
                 decimal amount = 0;
-                
+                int count = 0;
+               
                 for (int i = 0; i < num; i++)
                 {
                     Console.Write("Enter product's id: ");
                     int id = int.Parse(Console.ReadLine()!);
 
                     //Find product by ID
-                    var product = Products.FirstOrDefault(x => x.Id == id);
+                    var product = Products.FirstOrDefault(x => x.Id == id); 
 
                     if (product == null)
                     {
@@ -142,7 +144,7 @@ namespace MarketApplication.Servers.Concrete
                     }
 
                     Console.Write("Enter product's count: ");
-                    int count = int.Parse(Console.ReadLine()!);
+                    count = int.Parse(Console.ReadLine()!);
 
                     if (count == 0)
                     {
@@ -175,10 +177,9 @@ namespace MarketApplication.Servers.Concrete
 
                     SaleItems.Add(saleItem);
                 }
-                //for(int i = 0; i < Sa)
 
                 sale.Amount = amount;
-                Sales.Add(sale);
+
             }
             catch (Exception ex)
             {
@@ -206,7 +207,6 @@ namespace MarketApplication.Servers.Concrete
         {
             //Filter sales by id and Check if there is no sale 
             var sale = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Sale with ID:{id} was not found!");
-            
             //Remove product from sale
             foreach (var item in sale.Items)
             {
@@ -214,7 +214,7 @@ namespace MarketApplication.Servers.Concrete
 
                 if(product != null)
                 {
-                    product.Count += item.Count;
+                    product.Count += item.Count;//birde eleyesen .
                 }
             }
             Sales.Remove(sale);
@@ -227,7 +227,7 @@ namespace MarketApplication.Servers.Concrete
         {
             Console.Write("Enter number of Product to return: ");
             int num = int.Parse(Console.ReadLine()!);
-
+            if (num > SaleItems.Count) throw new Exception($"Can not return more than {SaleItems.Count} product!");
             // Find the sale by ID
             var sale = Sales.FirstOrDefault(x => x.Id == saleId);
 
@@ -261,6 +261,15 @@ namespace MarketApplication.Servers.Concrete
                 // Reduce saleItem's count in the sale after returning the product
                 saleItem.Count -= count;
 
+                // Increase the count of products in stock
+                var updateProduct = Products.FirstOrDefault(x => x.Id == saleItem.Id);
+                if (updateProduct != null)
+                {
+                    updateProduct.Count += count;
+                }
+                // Reduce the total amount of the sale after returning the product
+                sale.Amount -= count * saleItem.SaleProduct!.Price;
+
                 if (saleItem.Count == 0)
                 {
                     // Remove the saleItem from the sale if its count becomes zero
@@ -274,17 +283,8 @@ namespace MarketApplication.Servers.Concrete
                     break; // Exit the loop if the sale has been removed
                 }
 
-                // Reduce the total amount of the sale after returning the product
-                sale.Amount -= count * saleItem.SaleProduct!.Price;
 
-                // Increase the count of products in stock
                 //saleItem.SaleProduct!.Count += count;
-                var updateProduct = Products.FirstOrDefault(p => p.Id == saleItem.Id);
-                if (updateProduct != null)
-                {
-                    updateProduct.Count += count;
-                }
-
             }
             return Sales;
         }
