@@ -31,11 +31,17 @@ namespace MarketApplication.Servers.Concrete
                 Console.Write("Enter product's name: ");
                 string name = Console.ReadLine()!;
 
-                Console.Write("Enter product's category: ");
+                int CategoryCount = 1;
+                foreach (var item in Enum.GetNames(typeof(Category)))
+                {
+                    Console.WriteLine($"{CategoryCount++} - {item}");
+                }
+                Console.Write("Select a category: ");
                 Category category = (Category)Enum.Parse(typeof(Category), Console.ReadLine()!);
 
                 Console.Write("Enter product's count: ");
                 int count = int.Parse(Console.ReadLine()!);
+
 
                 Console.Write("Enter product's price: ");
                 decimal price = decimal.Parse(Console.ReadLine()!);
