@@ -214,7 +214,7 @@ namespace MarketApplication.Servers.Concrete
 
                 if(product != null)
                 {
-                    product.Count += item.Count;//birde eleyesen .
+                    product.Count += item.Count;
                 }
             }
             Sales.Remove(sale);
@@ -282,9 +282,6 @@ namespace MarketApplication.Servers.Concrete
                     Sales.Remove(sale);
                     break; // Exit the loop if the sale has been removed
                 }
-
-
-                //saleItem.SaleProduct!.Count += count;
             }
             return Sales;
         }
