@@ -57,6 +57,7 @@ namespace MarketApplication.Helper
                     case 0:
                         break;
                     default:
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("No such option!");
                         break;
                 }
@@ -117,6 +118,7 @@ namespace MarketApplication.Helper
                     case 0:
                         break;
                     default:
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("No such option!");
                         break;
                 }

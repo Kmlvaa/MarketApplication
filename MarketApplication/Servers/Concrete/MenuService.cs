@@ -182,7 +182,7 @@ namespace MarketApplication.Servers.Concrete
                     int num = int.Parse(Console.ReadLine()!);
                     MarketService.AddSale(num);
                 }
-                catch (Exception ex)
+                catch(Exception ex)
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine($"Error: {ex.Message}");

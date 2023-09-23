@@ -115,51 +115,76 @@ namespace MarketApplication.Servers.Concrete
 
         public int AddSale(int num)
         {
-            //Creates new Sale and Product objects
+            //Creates new Sale object
             var sale = new Sale();
-            var product = new Product();
-            int count = 0;
-            //Checks whether the entered quantity is available in stock or not
-            if (num > Products.Count)
+            int saleID = sale.Id;
+            try
             {
-                throw new Exception("There is not enough product in stock!");
-            }
-            if(num == 0)
-            {
-                throw new Exception("End!");
-            }
-            decimal price = 0,amount = 0;
-            for (int i = 0; i < num; i++)
-            {
-                Console.Write("Enter product's id: ");
-                int id = int.Parse(Console.ReadLine()!);
+                //checks if user input 0 as an count
+                if (num == 0)
+                {
+                    throw new Exception("End!");
+                }
 
-                //Filter list by id and detect exception
-                product = Products.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Product with ID:{id} was not found!");
+                decimal amount = 0;
                 
-                Console.Write("Enter product's count: ");
-                count = int.Parse(Console.ReadLine()!);
-                if (count == 0) throw new Exception("Could not add 0 product1");
-                if (count > product.Count) throw new Exception("The number of products cannot exceed the number in stock!");
-                
-                //Sets SaleItem object's properties
-                var saleItem = new SaleItem { 
-                   Count = count,
-                   SaleProduct = product
-                };
-                sale.Items.Add(saleItem);
+                for (int i = 0; i < num; i++)
+                {
+                    Console.Write("Enter product's id: ");
+                    int id = int.Parse(Console.ReadLine()!);
 
-                price = count * product.Price;
-                amount += price;
+                    //Find product by ID
+                    var product = Products.FirstOrDefault(x => x.Id == id);
 
-                //Reduces the number of products in stock
-                product.Count -= count;
-                SaleItems.Add(saleItem);
+                    if (product == null)
+                    {
+                        throw new Exception($"Product with ID:{id} was not found!");
+                    }
+
+                    Console.Write("Enter product's count: ");
+                    int count = int.Parse(Console.ReadLine()!);
+
+                    if (count == 0)
+                    {
+                        throw new Exception("Could not add 0 product!");
+                    }
+
+                    if (count > product.Count)
+                    {
+                        throw new Exception("The number of products cannot exceed the number in stock!");
+                    }
+                    // Clone the product to avoid changing product in sale
+                    var cloneProduct = (Product)product.Clone();
+
+                    //Create sale item
+                    var saleItem = new SaleItem
+                    {
+                        Count = count,
+                        SaleProduct = cloneProduct
+                    };
+
+                    //Adds saleItems to the sale
+                    sale.Items.Add(saleItem);
+
+                    //Update product count after sale
+                    product.Count -= count;
+
+                    //Calculate total amount of sale
+                    decimal price = count * cloneProduct.Price;
+                    amount += price;
+
+                    SaleItems.Add(saleItem);
+                }
+                //for(int i = 0; i < Sa)
+
+                sale.Amount = amount;
+                Sales.Add(sale);
             }
-            
-            //Sets sale objects properties
-            sale.Amount = amount;
-            Sales.Add(sale);
+            catch (Exception ex)
+            {
+                DeleteSale(saleID);
+                Console.WriteLine(ex.Message);
+            }
 
             return sale.Id;
         }
@@ -173,15 +198,26 @@ namespace MarketApplication.Servers.Concrete
         public List<Sale> GetSaleItems()
         {
             var sale = Sales.Select(x => x.Items.FirstOrDefault());
+
             return (List<Sale>)sale;
         }
 
         public List<Sale> DeleteSale(int id)
         {
             //Filter sales by id and Check if there is no sale 
-            var product = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Sale with ID:{id} was not found!");
+            var sale = Sales.FirstOrDefault(x => x.Id == id) ?? throw new Exception($"Sale with ID:{id} was not found!");
+            
             //Remove product from sale
-            Sales.Remove(product);
+            foreach (var item in sale.Items)
+            {
+                var product = Products.FirstOrDefault(x => x.Id == item.SaleProduct!.Id);
+
+                if(product != null)
+                {
+                    product.Count += item.Count;
+                }
+            }
+            Sales.Remove(sale);
 
             return Sales;
         }
@@ -191,37 +227,64 @@ namespace MarketApplication.Servers.Concrete
         {
             Console.Write("Enter number of Product to return: ");
             int num = int.Parse(Console.ReadLine()!);
+
+            // Find the sale by ID
+            var sale = Sales.FirstOrDefault(x => x.Id == saleId);
+
+            if (sale == null)
+            {
+                throw new Exception($"Sale with ID:{saleId} was not found!");
+            }
+
             for (int i = 0; i < num; i++)
             {
-                //Filter sales by id and Check if there is no sale in this range
-                var sale = Sales.FirstOrDefault(x => x.Id == saleId) ?? throw new Exception($"Sale with ID:{saleId} was not found!");
-                
                 Console.Write("Enter saleItem's ID:");
                 var saleItemId = int.Parse(Console.ReadLine()!);
 
+
                 Console.Write("Enter saleItem's count:");
                 var count = int.Parse(Console.ReadLine()!);
-                //Filter saleItems by id and Check if there is no sale in this range
-                var saleItem = SaleItems.FirstOrDefault(x => x.Id == saleItemId) ?? throw new Exception($"Product with ID:{saleItemId} was not found!");
-                
-                if(count > saleItem.Count)
+
+                // Find the sale item by ID within the sale
+                var saleItem = sale.Items.FirstOrDefault(x => x.Id == saleItemId);
+
+                if (saleItem == null)
                 {
-                     throw new Exception("Count can not be less than saleItem's count!");
+                    throw new Exception($"Sale Item with ID:{saleItemId} was not found in the sale!");
                 }
-                //Reduce saleItem's count in sale after returning product
-                saleItem.Count -= count;
-                if(saleItem.Count == 0)
+
+                if (count > saleItem.Count)
                 {
+                    throw new Exception("Count cannot be greater than the saleItem's count!");
+                }
+
+                // Reduce saleItem's count in the sale after returning the product
+                saleItem.Count -= count;
+
+                if (saleItem.Count == 0)
+                {
+                    // Remove the saleItem from the sale if its count becomes zero
                     sale.Items.Remove(saleItem);
                 }
-                if(sale.Items.Count == 0)
+
+                if (sale.Items.Count == 0)
                 {
+                    // Remove the sale from Sales if it has no items left
                     Sales.Remove(sale);
+                    break; // Exit the loop if the sale has been removed
                 }
-                //Reduce total amount of sale after returnin product
-                sale.Amount -= count * saleItem.SaleProduct!.Price; 
-                //Increases count of products in stock
-                saleItem.SaleProduct!.Count += count;
+
+                // Reduce the total amount of the sale after returning the product
+                sale.Amount -= count * saleItem.SaleProduct!.Price;
+
+                // Increase the count of products in stock
+                //saleItem.SaleProduct!.Count += count;
+                var updateProduct = Products.FirstOrDefault(p => p.Id == saleItem.Id);
+                if (updateProduct != null)
+                {
+                    updateProduct.Count += count;
+                }
+
             }
             return Sales;
         }

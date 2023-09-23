@@ -14,8 +14,8 @@ namespace MarketApplication
             do
             {
                 Console.WriteLine("----------------------------");
-                Console.WriteLine("1. For managing product");
-                Console.WriteLine("2. For managing sale");
+                Console.WriteLine("1. Manage product");
+                Console.WriteLine("2. Manage sale");
 
                 Console.WriteLine("0. Exit");
                 Console.WriteLine("----------------------------");
@@ -37,7 +37,9 @@ namespace MarketApplication
                     case 0:
                         break;
                     default:
+                        Console.ForegroundColor= ConsoleColor.Red;
                         Console.WriteLine("No such option!");
+                        Console.ForegroundColor = ConsoleColor.DarkGray;
                         break;
                 }
             } while (selectedOption != 0);

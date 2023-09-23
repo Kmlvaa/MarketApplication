@@ -3,7 +3,7 @@ using MarketApplication.Data.Enum;
 
 namespace MarketApplication.Data.Models
 {
-    public class Product : BaseModel
+    public class Product : BaseModel, ICloneable
     {
         private static int _id = 0;
         public Product()
@@ -16,5 +16,9 @@ namespace MarketApplication.Data.Models
         public int Count { get; set; }
         public decimal Price { get; set; }
         public Category Categories { get; set; }
+        public object Clone()
+        {
+            return this.MemberwiseClone();
+        }
     }
 }
